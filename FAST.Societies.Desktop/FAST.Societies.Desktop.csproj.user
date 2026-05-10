@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="Forms\Admin\AdminDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Admin\EventApproval.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Admin\ManageSocieties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Admin\ManageStudents.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Admin\UniversityReports.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Authentication\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Authentication\RegisterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Reports\RdlcReportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\AssignTasks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\GenerateReports.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\ManageEvents.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\ManageSociety.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\MembershipApproval.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Society\SocietyDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\ApplyMembership.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\BrowseSocieties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\EventRegistration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\MembershipStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\StudentDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\Student\ViewEvents.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
