@@ -45,6 +45,51 @@ public partial class ManageSocieties : Form
         refreshBtn.FlatAppearance.BorderSize = 0;
         refreshBtn.Click += (_, _) => _grid.DataSource = _bll.GetAll();
         topPanel.Controls.Add(refreshBtn);
+
+        var societyId = new NumericUpDown { Minimum = 1, Maximum = 999999, Width = 100, Font = new Font("Segoe UI", 10), Margin = new Padding(5, 2, 10, 2) };
+        topPanel.Controls.Add(new Label { Text = "Society ID", ForeColor = Color.FromArgb(44, 62, 80), Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Margin = new Padding(5, 10, 5, 5) });
+        topPanel.Controls.Add(societyId);
+
+        var approveBtn = new Button
+        {
+            Text = "Approve",
+            Width = 110,
+            Height = 36,
+            BackColor = Color.FromArgb(39, 174, 96),
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            Cursor = Cursors.Hand,
+            Margin = new Padding(5, 2, 5, 2)
+        };
+        approveBtn.FlatAppearance.BorderSize = 0;
+        approveBtn.Click += (_, _) =>
+        {
+            _bll.UpdateStatus((int)societyId.Value, true);
+            _grid.DataSource = _bll.GetAll();
+        };
+
+        var rejectBtn = new Button
+        {
+            Text = "Deactivate",
+            Width = 120,
+            Height = 36,
+            BackColor = Color.FromArgb(231, 76, 60),
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9, FontStyle.Bold),
+            Cursor = Cursors.Hand,
+            Margin = new Padding(5, 2, 5, 2)
+        };
+        rejectBtn.FlatAppearance.BorderSize = 0;
+        rejectBtn.Click += (_, _) =>
+        {
+            _bll.UpdateStatus((int)societyId.Value, false);
+            _grid.DataSource = _bll.GetAll();
+        };
+
+        topPanel.Controls.Add(approveBtn);
+        topPanel.Controls.Add(rejectBtn);
         
         // Grid Styling
         _grid.BackgroundColor = Color.White;

@@ -8,4 +8,5 @@ public sealed class SocietyBLL
     private readonly SocietyDAL _dal = new();
     public void Create(string name, string category) => _dal.Create(name, category);
     public List<Society> GetAll() => _dal.GetAll();
+    public void UpdateStatus(int societyId, bool isActive) => _dal.UpdateStatus(societyId, isActive);
 }

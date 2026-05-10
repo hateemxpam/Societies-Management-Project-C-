@@ -192,3 +192,4 @@ D:\University\smm\FAST.Societies.Desktop\obj\Debug\net8.0-windows\refint\FAST.So
 D:\University\smm\FAST.Societies.Desktop\obj\Debug\net8.0-windows\FAST.Societies.Desktop.pdb
 D:\University\smm\FAST.Societies.Desktop\obj\Debug\net8.0-windows\FAST.Societies.Desktop.genruntimeconfig.cache
 D:\University\smm\FAST.Societies.Desktop\obj\Debug\net8.0-windows\ref\FAST.Societies.Desktop.dll
+D:\University\smm\FAST.Societies.Desktop\obj\Debug\net8.0-windows\FAST.Societies.Desktop.sourcelink.json

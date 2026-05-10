@@ -1,14 +1,16 @@
 using FAST.Societies.Desktop.BLL;
+using FAST.Societies.Desktop.Utilities;
 namespace FAST.Societies.Desktop.Forms.Student;
 
 public partial class EventRegistration : Form
 {
     private readonly EventBLL _bll = new();
-    private readonly NumericUpDown _studentId = new() { Minimum = 1, Maximum = 999999 };
-    private readonly NumericUpDown _eventId = new() { Minimum = 1, Maximum = 999999 };
+    private readonly TextBox _studentName = new() { ReadOnly = true };
+    private readonly ComboBox _eventList = new() { DropDownStyle = ComboBoxStyle.DropDownList };
     public EventRegistration()
     {
         InitializeComponent();
+        LoadEvents();
     }
 
     private void InitializeComponent()
@@ -32,19 +34,20 @@ public partial class EventRegistration : Form
         };
         panel.Controls.Add(titleLabel);
         
-        var studentLabel = new Label { Text = "Student ID", ForeColor = Color.FromArgb(64,64,64), Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Margin = new Padding(0, 10, 0, 5) };
+        var studentLabel = new Label { Text = "Student", ForeColor = Color.FromArgb(64,64,64), Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Margin = new Padding(0, 10, 0, 5) };
         panel.Controls.Add(studentLabel);
-        _studentId.Width = 330;
-        _studentId.Font = new Font("Segoe UI", 11);
-        _studentId.Margin = new Padding(0, 0, 0, 20);
-        panel.Controls.Add(_studentId);
+        _studentName.Width = 330;
+        _studentName.Font = new Font("Segoe UI", 11);
+        _studentName.BorderStyle = BorderStyle.FixedSingle;
+        _studentName.Margin = new Padding(0, 0, 0, 20);
+        panel.Controls.Add(_studentName);
         
-        var eventLabel = new Label { Text = "Event ID", ForeColor = Color.FromArgb(64,64,64), Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Margin = new Padding(0, 10, 0, 5) };
+        var eventLabel = new Label { Text = "Event", ForeColor = Color.FromArgb(64,64,64), Font = new Font("Segoe UI", 9, FontStyle.Bold), AutoSize = true, Margin = new Padding(0, 10, 0, 5) };
         panel.Controls.Add(eventLabel);
-        _eventId.Width = 330;
-        _eventId.Font = new Font("Segoe UI", 11);
-        _eventId.Margin = new Padding(0, 0, 0, 30);
-        panel.Controls.Add(_eventId);
+        _eventList.Width = 330;
+        _eventList.Font = new Font("Segoe UI", 11);
+        _eventList.Margin = new Padding(0, 0, 0, 30);
+        panel.Controls.Add(_eventList);
         
         var btn = new Button 
         { 
@@ -61,12 +64,38 @@ public partial class EventRegistration : Form
         btn.FlatAppearance.BorderSize = 0;
         btn.Click += (_, _) => 
         { 
-            _bll.RegisterStudent((int)_studentId.Value, (int)_eventId.Value); 
+            if (SessionManager.CurrentUserId is null)
+            {
+                MessageBox.Show("Please log in again.", "Session Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (_eventList.SelectedValue is not int eventId)
+            {
+                MessageBox.Show("Please select an event.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _bll.RegisterStudent(SessionManager.CurrentUserId.Value, eventId); 
             MessageBox.Show("Event registration completed successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information); 
             Close(); 
         };
         panel.Controls.Add(btn);
         Controls.Add(panel);
+    }
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        _studentName.Text = SessionManager.CurrentUserName ?? string.Empty;
+    }
+
+    private void LoadEvents()
+    {
+        var events = _bll.GetUpcomingWithSocietyName();
+        _eventList.DisplayMember = "DisplayName";
+        _eventList.ValueMember = "EventId";
+        _eventList.DataSource = events;
     }
 }
 

@@ -8,5 +8,6 @@ public sealed class EventBLL
     private readonly EventDAL _dal = new();
     public void Create(int societyId, string title, DateTime eventDate) => _dal.Create(societyId, title, eventDate);
     public List<Event> GetUpcoming() => _dal.GetUpcoming();
+    public List<EventDisplay> GetUpcomingWithSocietyName() => _dal.GetUpcomingWithSocietyName();
     public void RegisterStudent(int studentId, int eventId) => _dal.RegisterStudent(studentId, eventId);
 }

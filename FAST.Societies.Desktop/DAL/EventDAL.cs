@@ -8,5 +8,6 @@ public sealed class EventDAL
     private readonly SqlRepository _repo = new(DBConnection.GetConnectionString());
     public void Create(int societyId, string title, DateTime eventDate) => _repo.CreateEvent(societyId, title, eventDate);
     public List<Event> GetUpcoming() => _repo.GetUpcomingEvents();
+    public List<EventDisplay> GetUpcomingWithSocietyName() => _repo.GetUpcomingEventsWithSocietyName();
     public void RegisterStudent(int studentId, int eventId) => _repo.RegisterEvent(studentId, eventId);
 }

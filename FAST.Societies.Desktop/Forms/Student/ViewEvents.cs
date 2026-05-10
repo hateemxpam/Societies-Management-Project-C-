@@ -9,7 +9,7 @@ public partial class ViewEvents : Form
     public ViewEvents()
     {
         InitializeComponent();
-        _grid.DataSource = _bll.GetUpcoming();
+        _grid.DataSource = _bll.GetUpcomingWithSocietyName();
     }
 
     private void InitializeComponent()
@@ -41,7 +41,7 @@ public partial class ViewEvents : Form
             Cursor = Cursors.Hand
         };
         refreshBtn.FlatAppearance.BorderSize = 0;
-        refreshBtn.Click += (_, _) => _grid.DataSource = _bll.GetUpcoming();
+        refreshBtn.Click += (_, _) => _grid.DataSource = _bll.GetUpcomingWithSocietyName();
         topPanel.Controls.Add(refreshBtn);
         Controls.Add(topPanel);
 

@@ -1,4 +1,5 @@
 using FAST.Societies.Desktop.BLL;
+using FAST.Societies.Desktop.Models;
 
 namespace FAST.Societies.Desktop.Forms.Admin;
 
@@ -6,7 +7,7 @@ public partial class EventApproval : Form
 {
     private readonly AdminBLL _bll = new();
     private readonly DataGridView _grid = new() { Dock = DockStyle.Fill, ReadOnly = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
-    private readonly NumericUpDown _eventId = new() { Minimum = 1, Maximum = 999999 };
+    private readonly TextBox _eventId = new() { ReadOnly = true };
 
     public EventApproval()
     {
@@ -49,8 +50,9 @@ public partial class EventApproval : Form
         top.Controls.Add(refresh);
 
         _eventId.Font = new Font("Segoe UI", 10);
-        _eventId.Width = 100;
+        _eventId.Width = 110;
         _eventId.Margin = new Padding(0, 5, 20, 5);
+        _eventId.BorderStyle = BorderStyle.FixedSingle;
 
         top.Controls.Add(new Label { Text = "Event ID:", ForeColor = Color.Black, Font = new Font("Segoe UI", 9), AutoSize = true, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(5, 10, 5, 5) });
         top.Controls.Add(_eventId);
@@ -68,10 +70,18 @@ public partial class EventApproval : Form
             Cursor = Cursors.Hand
         };
         approve.FlatAppearance.BorderSize = 0;
-        approve.Click += (_, _) => { 
-            _bll.UpdateEventStatus((int)_eventId.Value, "Approved"); 
-            MessageBox.Show("Event Approved.", "Success"); 
-            LoadData(); 
+        approve.Click += (_, _) =>
+        {
+            var selectedId = GetSelectedEventId();
+            if (selectedId is null)
+            {
+                MessageBox.Show("Please select an event row.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _bll.UpdateEventStatus(selectedId.Value, "Approved");
+            MessageBox.Show("Event Approved.", "Success");
+            LoadData();
         };
 
         var reject = new Button 
@@ -87,10 +97,18 @@ public partial class EventApproval : Form
             Cursor = Cursors.Hand
         };
         reject.FlatAppearance.BorderSize = 0;
-        reject.Click += (_, _) => { 
-            _bll.UpdateEventStatus((int)_eventId.Value, "Rejected"); 
-            MessageBox.Show("Event Rejected.", "Success"); 
-            LoadData(); 
+        reject.Click += (_, _) =>
+        {
+            var selectedId = GetSelectedEventId();
+            if (selectedId is null)
+            {
+                MessageBox.Show("Please select an event row.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _bll.UpdateEventStatus(selectedId.Value, "Rejected");
+            MessageBox.Show("Event Rejected.", "Success");
+            LoadData();
         };
         
         top.Controls.Add(approve);
@@ -111,6 +129,9 @@ public partial class EventApproval : Form
         _grid.ColumnHeadersHeight = 40;
         _grid.EnableHeadersVisualStyles = false;
         _grid.Dock = DockStyle.Fill;
+        _grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        _grid.MultiSelect = false;
+        _grid.SelectionChanged += (_, _) => UpdateSelectedEventId();
         
         var gridPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(15) };
         gridPanel.Controls.Add(_grid);
@@ -126,5 +147,25 @@ public partial class EventApproval : Form
         Controls.Add(mainLayout);
     }
 
-    private void LoadData() => _grid.DataSource = _bll.GetPendingEvents();
+    private void LoadData()
+    {
+        _grid.DataSource = _bll.GetPendingEvents();
+        UpdateSelectedEventId();
+    }
+
+    private int? GetSelectedEventId()
+    {
+        if (_grid.CurrentRow?.DataBoundItem is Models.Event row)
+        {
+            return row.EventId;
+        }
+
+        return null;
+    }
+
+    private void UpdateSelectedEventId()
+    {
+        var selectedId = GetSelectedEventId();
+        _eventId.Text = selectedId?.ToString() ?? string.Empty;
+    }
 }

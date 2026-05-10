@@ -120,13 +120,21 @@ public partial class LoginForm : Form
 
     private void OnLoginClick(object? sender, EventArgs e)
     {
-        if (!ValidationHelper.Required(_email.Text, _password.Text))
+        if (_role.Text == "Society")
+        {
+            if (!ValidationHelper.Required(_email.Text))
+            {
+                MessageBox.Show("Society name is required.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+        }
+        else if (!ValidationHelper.Required(_email.Text, _password.Text))
         {
             MessageBox.Show("Email and password are required.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        if (!ValidationHelper.IsValidEmail(_email.Text))
+        if (_role.Text != "Society" && !ValidationHelper.IsValidEmail(_email.Text))
         {
             MessageBox.Show("Please enter a valid email address.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
@@ -143,6 +151,8 @@ public partial class LoginForm : Form
                     return;
                 }
                 SessionManager.CurrentRole = "Student";
+                SessionManager.CurrentUserId = student.StudentId;
+                SessionManager.CurrentUserName = student.FullName;
                 Hide();
                 new StudentDashboard().ShowDialog();
                 Show();

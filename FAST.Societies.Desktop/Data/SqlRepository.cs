@@ -140,6 +140,26 @@ CREATE TABLE Announcements (
         return list;
     }
 
+    public List<TaskDisplay> GetTasksWithSocietyName()
+    {
+        var list = new List<TaskDisplay>();
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT t.TaskId, s.Name, st.FullName, t.Title, t.Status
+FROM Tasks t
+JOIN Societies s ON s.SocietyId = t.SocietyId
+JOIN Students st ON st.StudentId = t.AssignedToStudentId
+ORDER BY t.TaskId DESC";
+        using var rd = cmd.ExecuteReader();
+        while (rd.Read())
+        {
+            list.Add(new TaskDisplay(rd.GetInt32(0), rd.GetString(1), rd.GetString(2), rd.GetString(3), rd.GetString(4)));
+        }
+        return list;
+    }
+
     public void RegisterStudent(string fullName, string email, string password)
     {
         using var con = new SqlConnection(_connectionString);
@@ -165,6 +185,26 @@ VALUES (@n, @e, @p, 1, SYSDATETIME())";
         while (rd.Read())
         {
             list.Add(new Society(rd.GetInt32(0), rd.GetString(1), rd.GetString(2), rd.GetBoolean(3)));
+        }
+        return list;
+    }
+
+    public List<PendingMembershipDisplay> GetPendingMembershipsWithSocietyName()
+    {
+        var list = new List<PendingMembershipDisplay>();
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT m.MembershipId, m.StudentId, s.Name, m.Status
+FROM Memberships m
+JOIN Societies s ON s.SocietyId = m.SocietyId
+WHERE m.Status='Pending'
+ORDER BY m.MembershipId DESC";
+        using var rd = cmd.ExecuteReader();
+        while (rd.Read())
+        {
+            list.Add(new PendingMembershipDisplay(rd.GetInt32(0), rd.GetInt32(1), rd.GetString(2), rd.GetString(3)));
         }
         return list;
     }
@@ -215,6 +255,26 @@ ORDER BY EventDate";
         return list;
     }
 
+    public List<EventDisplay> GetUpcomingEventsWithSocietyName()
+    {
+        var list = new List<EventDisplay>();
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT e.EventId, s.Name, e.Title, e.EventDate, e.Status
+FROM Events e
+JOIN Societies s ON s.SocietyId = e.SocietyId
+WHERE e.EventDate >= CAST(SYSDATETIME() AS date)
+ORDER BY e.EventDate";
+        using var rd = cmd.ExecuteReader();
+        while (rd.Read())
+        {
+            list.Add(new EventDisplay(rd.GetInt32(0), rd.GetString(1), rd.GetString(2), rd.GetDateTime(3), rd.GetString(4)));
+        }
+        return list;
+    }
+
     public void CreateEvent(int societyId, string title, DateTime eventDate)
     {
         using var con = new SqlConnection(_connectionString);
@@ -226,6 +286,17 @@ VALUES (@soc, @t, '', 'TBD', @d, 100, 'PendingApproval', 1, SYSDATETIME())";
         cmd.Parameters.AddWithValue("@soc", societyId);
         cmd.Parameters.AddWithValue("@t", title);
         cmd.Parameters.AddWithValue("@d", eventDate);
+        cmd.ExecuteNonQuery();
+    }
+
+    public void UpdateSocietyStatus(int societyId, bool isActive)
+    {
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = "UPDATE Societies SET IsActive=@active WHERE SocietyId=@id";
+        cmd.Parameters.AddWithValue("@active", isActive ? 1 : 0);
+        cmd.Parameters.AddWithValue("@id", societyId);
         cmd.ExecuteNonQuery();
     }
 
@@ -255,6 +326,27 @@ VALUES (@e, @s, CONCAT('TKT-', @s, '-', @e), SYSDATETIME(), 'Registered')";
         while (rd.Read())
         {
             list.Add(new Membership(rd.GetInt32(0), rd.GetInt32(1), rd.GetInt32(2), rd.GetString(3)));
+        }
+        return list;
+    }
+
+    public List<StudentMembershipStatus> GetMembershipsByStudentWithSocietyName(int studentId)
+    {
+        var list = new List<StudentMembershipStatus>();
+        using var con = new SqlConnection(_connectionString);
+        con.Open();
+        using var cmd = con.CreateCommand();
+        cmd.CommandText = @"
+SELECT m.MembershipId, s.Name, m.Status
+FROM Memberships m
+JOIN Societies s ON s.SocietyId = m.SocietyId
+WHERE m.StudentId = @s
+ORDER BY m.MembershipId DESC";
+        cmd.Parameters.AddWithValue("@s", studentId);
+        using var rd = cmd.ExecuteReader();
+        while (rd.Read())
+        {
+            list.Add(new StudentMembershipStatus(rd.GetInt32(0), rd.GetString(1), rd.GetString(2)));
         }
         return list;
     }

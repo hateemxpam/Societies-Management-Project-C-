@@ -1,4 +1,5 @@
 using FAST.Societies.Desktop.BLL;
+using FAST.Societies.Desktop.Models;
 
 namespace FAST.Societies.Desktop.Forms.Society;
 
@@ -6,7 +7,7 @@ public partial class MembershipApproval : Form
 {
     private readonly MembershipBLL _bll = new();
     private readonly DataGridView _grid = new() { Dock = DockStyle.Fill, ReadOnly = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
-    private readonly NumericUpDown _membershipId = new() { Minimum = 1, Maximum = 999999 };
+    private readonly TextBox _membershipId = new() { ReadOnly = true };
 
     public MembershipApproval()
     {
@@ -25,9 +26,9 @@ public partial class MembershipApproval : Form
         
         var top = new FlowLayoutPanel 
         { 
-            Dock = DockStyle.Top, 
+            Dock = DockStyle.Fill, 
             AutoSize = true,
-            Padding = new Padding(15, 20, 15, 20), 
+            Padding = new Padding(20, 15, 20, 15), 
             BackColor = Color.White,
             WrapContents = true
         };
@@ -49,10 +50,11 @@ public partial class MembershipApproval : Form
         top.Controls.Add(refresh);
 
         _membershipId.Font = new Font("Segoe UI", 10);
-        _membershipId.Width = 100;
+        _membershipId.Width = 110;
         _membershipId.Margin = new Padding(0, 5, 20, 5);
+        _membershipId.BorderStyle = BorderStyle.FixedSingle;
 
-        top.Controls.Add(new Label { Text = "Membership ID:", ForeColor = Color.Black, Font = new Font("Segoe UI", 9), Width = 110, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(5) });
+        top.Controls.Add(new Label { Text = "Membership ID", ForeColor = Color.FromArgb(44, 62, 80), Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 110, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(5) });
         top.Controls.Add(_membershipId);
         
         var approve = new Button 
@@ -68,10 +70,18 @@ public partial class MembershipApproval : Form
             Cursor = Cursors.Hand
         };
         approve.FlatAppearance.BorderSize = 0;
-        approve.Click += (_, _) => { 
-            _bll.UpdateStatus((int)_membershipId.Value, "Approved"); 
-            MessageBox.Show("Approved."); 
-            LoadData(); 
+        approve.Click += (_, _) =>
+        {
+            var selectedId = GetSelectedMembershipId();
+            if (selectedId is null)
+            {
+                MessageBox.Show("Please select a membership row.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _bll.UpdateStatus(selectedId.Value, "Approved");
+            MessageBox.Show("Approved.");
+            LoadData();
         };
 
         var reject = new Button 
@@ -87,15 +97,22 @@ public partial class MembershipApproval : Form
             Cursor = Cursors.Hand
         };
         reject.FlatAppearance.BorderSize = 0;
-        reject.Click += (_, _) => { 
-            _bll.UpdateStatus((int)_membershipId.Value, "Rejected"); 
-            MessageBox.Show("Rejected."); 
-            LoadData(); 
+        reject.Click += (_, _) =>
+        {
+            var selectedId = GetSelectedMembershipId();
+            if (selectedId is null)
+            {
+                MessageBox.Show("Please select a membership row.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _bll.UpdateStatus(selectedId.Value, "Rejected");
+            MessageBox.Show("Rejected.");
+            LoadData();
         };
         
         top.Controls.Add(approve);
         top.Controls.Add(reject);
-        Controls.Add(top);
         
         // Grid Styling
         _grid.BackgroundColor = Color.White;
@@ -113,12 +130,41 @@ public partial class MembershipApproval : Form
         _grid.EnableHeadersVisualStyles = false;
         
         _grid.Dock = DockStyle.Fill;
+        _grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        _grid.MultiSelect = false;
+        _grid.SelectionChanged += (_, _) => UpdateSelectedMembershipId();
         var gridPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(15) };
         gridPanel.Controls.Add(_grid);
-        Controls.Add(gridPanel);
-        
-        top.BringToFront();
+
+        var mainLayout = new TableLayoutPanel { Dock = DockStyle.Fill };
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+        mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+        mainLayout.Controls.Add(top, 0, 0);
+        mainLayout.Controls.Add(gridPanel, 0, 1);
+
+        Controls.Add(mainLayout);
     }
 
-    private void LoadData() => _grid.DataSource = _bll.GetPending();
+    private void LoadData()
+    {
+        _grid.DataSource = _bll.GetPendingWithSocietyName();
+        UpdateSelectedMembershipId();
+    }
+
+    private int? GetSelectedMembershipId()
+    {
+        if (_grid.CurrentRow?.DataBoundItem is Models.PendingMembershipDisplay row)
+        {
+            return row.MembershipId;
+        }
+
+        return null;
+    }
+
+    private void UpdateSelectedMembershipId()
+    {
+        var selectedId = GetSelectedMembershipId();
+        _membershipId.Text = selectedId?.ToString() ?? string.Empty;
+    }
 }
